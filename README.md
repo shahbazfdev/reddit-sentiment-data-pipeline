@@ -28,11 +28,9 @@ Reddit API (PRAW)
  [6. Housekeeping & Cleanup] ──► Automated retention & staging truncation
 ```
 
-![Architecture Diagram](pictures/architecture_diagram.jpg)
-
 ### Tech Stack & Components
 - **Orchestration**: Apache Airflow 3 / Astronomer Runtime (`astro-runtime:3.1-8`)
-- **Container Runtime**: Podman / Docker (Full Fedora Linux & Rootless Container Support)
+- **Container Runtime**: Docker (Docker Engine or docker-podman wrapper)
 - **Data Ingestion**: Python Reddit API Wrapper (`praw`)
 - **Data Transformation & NLP**: Pandas, `vaderSentiment`, custom NLP intent classification
 - **Storage & Data Warehouse**: PostgreSQL 15 (Staging, Normalized Store, & Star Schema)
@@ -40,22 +38,18 @@ Reddit API (PRAW)
 
 ---
 
-## Prerequisites & Container Setup
+## Prerequisites & Docker Setup
 
-### 1. Container Runtime (Linux / Fedora / Podman)
+### 1. Docker Runtime Setup
 
-This project natively supports **Fedora Linux** using **Podman** (with the Docker socket/wrapper) or standard **Docker Engine / Docker Desktop**.
+Ensure Docker (or the docker-podman wrapper socket) is running on your machine:
 
-#### On Fedora Linux (Podman):
-Ensure the user Podman socket is active:
 ```bash
 systemctl --user enable --now podman.socket
 export DOCKER_HOST=unix:///run/user/$UID/podman/podman.sock
+docker ps
 ```
 *(Tip: Add `export DOCKER_HOST=unix:///run/user/$UID/podman/podman.sock` to your `~/.bashrc` or `~/.zshrc`)*.
-
-#### On Windows / macOS:
-Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is installed and running.
 
 ---
 
@@ -94,9 +88,9 @@ From the project root:
 ```bash
 astro dev start
 ```
-*Alternatively, if managing via Podman directly:*
+*Alternatively, if managing via Docker directly:*
 ```bash
-podman start $(podman ps -a -q --filter name=airflow-dev)
+docker start $(docker ps -a -q --filter name=airflow-dev)
 ```
 
 This starts:
@@ -139,15 +133,13 @@ In **Airflow UI → Admin → Variables → Add Variable**:
 ### 3. Target PostgreSQL Warehouse Setup
 Create the analytical database inside the Postgres container:
 ```bash
-podman exec airflow-dev_e1fe2a-postgres-1 psql -U postgres -c "CREATE DATABASE af_reddit;"
-# Or if using docker:
-# docker exec airflow-dev_e1fe2a-postgres-1 psql -U postgres -c "CREATE DATABASE af_reddit;"
+docker exec airflow-dev_e1fe2a-postgres-1 psql -U postgres -c "CREATE DATABASE af_reddit;"
 ```
 
 In **Airflow UI → Admin → Connections → Add Connection**:
 - **Connection Id**: `postgres_reddit`
 - **Connection Type**: `Postgres`
-- **Host**: `postgres` *(container DNS alias on the docker/podman network)*
+- **Host**: `postgres` *(container DNS alias on the docker network)*
 - **Database / Schema**: `af_reddit`
 - **Login**: `postgres`
 - **Password**: `postgres`
@@ -172,8 +164,6 @@ Execute the DAGs in the following order:
 
 ## Data Warehouse & Dimensional Model
 
-![ER Diagram](pictures/er_diagram.png)
-
 ### Tables
 1. **`stg_reddit_posts`**: Transient staging table capturing incoming CSV records with initial validations.
 2. **`reddit_posts`**: Intermediate deduplicated store retaining unique Reddit submissions by natural key (`id`).
@@ -185,23 +175,23 @@ Execute the DAGs in the following order:
 
 ---
 
-## Handy Container Management Commands
+## Handy Docker Commands
 
 ```bash
 # Check running containers
-podman ps   # or docker ps
+docker ps
 
 # Follow Airflow scheduler logs
-podman logs -f airflow-dev_e1fe2a-scheduler-1
+docker logs -f airflow-dev_e1fe2a-scheduler-1
 
 # Stop all Airflow pipeline containers
-podman stop $(podman ps -q --filter name=airflow-dev)
+docker stop $(docker ps -q --filter name=airflow-dev)
 
 # Start all Airflow pipeline containers
-podman start $(podman ps -a -q --filter name=airflow-dev)
+docker start $(docker ps -a -q --filter name=airflow-dev)
 
 # Query the analytical database
-podman exec -it airflow-dev_e1fe2a-postgres-1 psql -U postgres -d af_reddit
+docker exec -it airflow-dev_e1fe2a-postgres-1 psql -U postgres -d af_reddit
 ```
 
 ---
