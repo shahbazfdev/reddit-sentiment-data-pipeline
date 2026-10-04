@@ -1,0 +1,1 @@
+TRUNCATE TABLE stg_reddit_posts;
