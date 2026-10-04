@@ -1,2 +1,2 @@
 project:
-    name: airflow-dev
+    name: reddit-sentiment-pipeline

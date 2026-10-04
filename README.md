@@ -1,4 +1,4 @@
-# Reddit Data Pipeline using Apache Airflow & PostgreSQL
+# Reddit Sentiment & Analytics Data Pipeline
 
 An end-to-end **production-grade data engineering pipeline** orchestrated with **Apache Airflow (Astronomer Runtime)** to ingest data from Reddit, enrich it using Natural Language Processing (sentiment analysis & intent classification), load it into PostgreSQL, and model it using dimensional modeling (Star Schema) principles.
 
@@ -85,8 +85,8 @@ astro version
 
 ### 1. Clone and Navigate to Project
 ```bash
-git clone https://github.com/shahbazfdev/reddit-airflow-data-pipeline.git
-cd reddit-airflow-data-pipeline
+git clone https://github.com/shahbazfdev/reddit-sentiment-data-pipeline.git
+cd reddit-sentiment-data-pipeline
 ```
 
 ### 2. Start Airflow with Containers
@@ -209,7 +209,7 @@ podman exec -it airflow-dev_e1fe2a-postgres-1 psql -U postgres -d af_reddit
 ## Author
 
 **Shahbaz Fareed Chishti**  
-- **Email**: [shahbazfareedchishti@gmail.com](mailto:shahbazfareedchishti@gmail.com)  
-- **GitHub**: [@shahbazfareedchishti](https://github.com/shahbazfareedchishti)  
-- **Role**: Data / Software Engineer  
+- **Email**: [shahbazfdev@gmail.com](mailto:shahbazfdev@gmail.com)  
+- **GitHub**: [@shahbazfdev](https://github.com/shahbazfdev)  
+- **Role**: Data Engineer  
 - **Focus**: Data Engineering, Cloud Infrastructure, Distributed Systems & Analytical Pipelines
